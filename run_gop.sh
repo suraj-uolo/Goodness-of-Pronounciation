@@ -28,11 +28,12 @@ conf=conf/
 #model=/home/rau047/tuda/de_900k_nnet3chain_tdnn1f_2048_sp_bi/
 #extractor=/home/rau047/tuda/de_900k_nnet3chain_tdnn1f_2048_sp_bi/ivector_extractor/
 #lang=/home/rau047/tuda/data/lang_std_big_v6_const_arpa/
-#conf=/home/rau047/tuda/de_900k_nnet3chain_tdnn1f_2048_sp_bi/conf/
+#conf=/home/rau047/libreespeech/conf/
 
-extractor=/home/rau047/libreespeech2/0013_librispeech_v1_extractor/exp/nnet3_cleaned/extractor
-model=/home/rau047/libreespeech2/0013_librispeech_v1_chain/exp/chain_cleaned/tdnn_1d_sp
-lang=/home/rau047/libreespeech2/0013_librispeech_v1_lm/data/lang_test_tgsmall
+# Use the correct version of the LibriSpeech model
+extractor=/Users/uolo/Desktop/Goodness-of-Pronounciation/lspeech/extractor/exp/nnet3_cleaned/extractor
+model=/Users/uolo/Desktop/Goodness-of-Pronounciation/lspeech/chain/exp/chain_cleaned/tdnn_1d_sp
+lang=/Users/uolo/Desktop/Goodness-of-Pronounciation/lspeech/lm/data/lang_test_tgsmall
 #conf=/home/rau047/libreespeech/conf/
 
 
@@ -48,11 +49,13 @@ nj=1
 # testdata=test_10short 
 #testdata=test_native_vs_others
 testdata=$1
+echo "testdata: $1"
 dir=exp/gop_$testdata
 
 
 # Feature extraction like MFCC,CMVN,IVECTOR for a given test data
 if [ $stage -le 0 ]; then
+  echo "stage 0"
   steps/make_mfcc.sh --nj $nj --mfcc-config $conf/mfcc_hires.conf \
      data/$testdata exp/make_hires/$testdata $mfccdir
 
@@ -66,12 +69,14 @@ fi
 
 # Compute Log-likelihoods
 if [ $stage -le 1 ]; then
+  echo "stage 1"
   steps/nnet3/compute_output.sh --cmd "$cmd" --nj $nj \
     --online-ivector-dir exp/nnet3_cleaned/ivectors_${testdata} data/$testdata $model exp/probs_$testdata
 fi
 
 # Compute alignment
 if [ $stage -le 2 ]; then
+  echo "stage 2"
   steps/nnet3/align.sh --cmd "$cmd" --nj $nj --use_gpu false \
     --online_ivector_dir exp/nnet3_cleaned/ivectors_${testdata} data/$testdata $lang $model $dir
 fi
@@ -81,6 +86,7 @@ if [ $stage -le 3 ]; then
   # make a map which converts phones to "pure-phones"
   # "pure-phone" means the phone whose stress and pos-in-word markers are ignored
   # eg. AE1_B --> AE, EH2_S --> EH, SIL --> SIL
+  echo "stage 3"
   local/remove_phone_markers.pl $lang/phones.txt $dir/phones-pure.txt \
     $dir/phone-to-pure-phone.int
 
@@ -112,6 +118,7 @@ if [ $stage -le 4 ]; then
   # The column number is 2 * (pure-phone set size), as the feature is consist of LLR + LPR.
   # The phone-level features can be used to train a classifier with human labels. See Hu's
   # paper for detail.
+  echo "stage 4"
   $cmd JOB=1:$nj $dir/log/compute_gop.JOB.log \
     compute-gop --phone-map=$dir/phone-to-pure-phone.int $model/final.mdl \
       "ark,t:gunzip -c $dir/ali-phone.JOB.gz|" \

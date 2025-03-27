@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "speech_score": {
+    "transcript": "WHICH WOULD YOU PREFER TEA OR COFFEE",
+    "word_score_list": [],
+    "overall_metrics": {
+      "pronunciation_score": 0,
+      "phone_durations": []
+    }
+  }
+}

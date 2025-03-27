@@ -1,0 +1,74 @@
+{
+  "status": "success",
+  "speech_score": {
+    "transcript": "MACHINE",
+    "word_score_list": [
+      {
+        "word": "MACHINE",
+        "quality_score": 19,
+        "phone_score_list": [
+          {
+            "phone": "M",
+            "quality_score": 4800.0,
+            "stress_level": null,
+            "sound_most_like": "M"
+          },
+          {
+            "phone": "AH",
+            "quality_score": 3100.0,
+            "stress_level": null,
+            "sound_most_like": "AH"
+          },
+          {
+            "phone": "SH",
+            "quality_score": 0.0,
+            "stress_level": null,
+            "sound_most_like": "SH"
+          },
+          {
+            "phone": "IY",
+            "quality_score": 900.0,
+            "stress_level": null,
+            "sound_most_like": "IY"
+          },
+          {
+            "phone": "N",
+            "quality_score": 500.0,
+            "stress_level": null,
+            "sound_most_like": "N"
+          }
+        ]
+      }
+    ],
+    "overall_metrics": {
+      "pronunciation_score": 19,
+      "phone_durations": [
+        [
+          "M",
+          0.02,
+          0.05
+        ],
+        [
+          "AH",
+          0.05,
+          0.06
+        ],
+        [
+          "SH",
+          0.06,
+          0.1
+        ],
+        [
+          "IY",
+          0.1,
+          0.16
+        ],
+        [
+          "N",
+          0.16,
+          0.2
+        ]
+      ]
+    }
+  }
+}

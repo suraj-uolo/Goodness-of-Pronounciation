@@ -4,8 +4,9 @@ import os
 import re
 import numpy as np
 import sys
+import json
 
-CWD = '/home/rau047/kaldi/egs/gop_speechocean762/s5'
+CWD = '/Users/uolo/Desktop/Goodness-of-Pronounciation/kaldi/egs/gop_speechocean762/s5'
 
 FRAME_SHIFT = 10
 #Dir where file that contains phoneme start times and end times. 
@@ -78,6 +79,7 @@ def read_file(filename):
 
 # parse_phones function returns phone and phone id.
 def parse_phones(filename):
+    print(filename)
     phone_lines = read_file(filename)
     phone2id = dict()
     
@@ -89,12 +91,12 @@ def parse_phones(filename):
     #print("phone_lines:", phone_lines)
      
     for pl in phone_lines:
-        if filename == '/home/rau047/kaldi/egs/gop_speechocean762/s5/exp/gop_test_api/phone-to-pure-phone.int':
+        if filename == '/Users/uolo/Desktop/Goodness-of-Pronounciation/kaldi/egs/gop_speechocean762/s5/exp/gop_test_api/phone-to-pure-phone.int':
             phones_ids = pl.split(' ')
             #print(phones_ids)
         else:
             phones_ids = pl.split('\t')
-        #print(phones_ids)
+        # print(phones_ids)
         ph = phones_ids[0].strip()
         idx = phones_ids[1].strip()
         #print(idx)
@@ -290,8 +292,19 @@ def run_gop(wav_file, transcript, data_dir):
     print(data_dir_path)
     #create all the files files required by Kaldi gop module.
     create_data_dir(data_dir_path, wav_file, transcript)
-    #call to run.sh shell script which is an actual kaldi file which computes the gop scores.
-    subprocess.call(["./run_gop.sh", "test_api"], cwd=CWD)
+    
+    #call to run_gop.sh shell script which is an actual kaldi file that computes the gop scores.
+    run_gop_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'run_gop.sh')
+    if not os.path.exists(run_gop_script):
+        print(f"Error: {run_gop_script} not found")
+        return
+    
+    # Make sure the script is executable
+    os.chmod(run_gop_script, 0o755)
+    
+    # Run the script with full path
+    subprocess.call([f"{run_gop_script} test_api"], cwd=CWD, shell=True)
+    
     #path to a file that stores gop scores.
     op_dir = os.path.join(CWD, 'exp', 'gop_test_api')
     
@@ -308,14 +321,17 @@ def run_gop(wav_file, transcript, data_dir):
     utterance_score['phone_durations'] = phone_durations
     #print(utterance_score)
     # get formatted scores.
+    json.dump(utterance_score, open('utterance_score.json', 'w'), indent=2)
     f_str = get_formatted_score(utterance_score,transcript)
     #return gop result in json format and path to wav file bach to gop_demo_app_test.py file.
     print(f_str)
 
+    return f_str
+
 with open("main_log.txt", "w") as f:
 	wav_file = list(sys.argv)[1]
 	transcript = list(sys.argv)[2]
-	data_dir = '/home/rau047/kaldi/egs/gop_speechocean762/s5/data/test_api'
+	data_dir = '/Users/uolo/Desktop/Goodness-of-Pronounciation/kaldi/egs/gop_speechocean762/s5/data/test_api'
 	
 	run_gop(wav_file, transcript, data_dir)
 
